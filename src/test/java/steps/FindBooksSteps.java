@@ -1,6 +1,7 @@
 package steps;
 
 import dto.BookDTO;
+import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -11,6 +12,7 @@ import utils.Services;
 import java.util.HashMap;
 import java.util.Map;
 
+import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class FindBooksSteps {
@@ -59,9 +61,46 @@ public class FindBooksSteps {
         }
     }
 
+    @Given("the user has the id for a book titled {string}")
+    public void theUserHasTheIdForABookTitled(String bookTitle){
+        theUserSearchesForABookTitled(bookTitle);
+        bookId = book.getBookId();
+    }
+
     @Then("the id to that book must be found aswell")
     public void theIdToThatBookMustBeFoundAswell() {
         assertNotNull(this.book);
         assertNotNull(this.book.getBookId());
+    }
+
+    @Given("the endpoint is set to {string} with {string} id")
+    public void theEndpointIsSetToWithId(String endpoint, String id) {
+        theEndpointIsSetTo(endpoint + id);
+    }
+
+    @Then("a book titled {string} is present in the book list")
+    public void aBookTitledIsPresentInTheBookList(String bookTitle) {
+        BookDTO[] books = RestHelper.convertJsonToObject(response.asString(), BookDTO[].class);
+        for (BookDTO book: books) {
+            if (book.getTitle().equals(bookTitle)){
+                this.book = book;
+            }
+        }
+        assertEquals(bookTitle, book.getTitle());
+    }
+
+    @Then("the book price is {string}")
+    public void theBookPriceIs(String bookPrice) {
+        assertEquals(Integer.parseInt(bookPrice), book.getPrice());
+    }
+
+    @Then("the book author is {string}")
+    public void theBookAuthorIs(String bookAuthor) {
+        assertEquals(bookAuthor, book.getAuthor());
+    }
+
+    @Then("the book category is {string}")
+    public void theBookCategoryIs(String bookAuthor) {
+        assertEquals(bookAuthor, book.getCategory());
     }
 }
